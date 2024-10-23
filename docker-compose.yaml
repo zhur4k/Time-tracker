@@ -1,9 +1,27 @@
 services:
   postgres:
-    image: 'postgres:latest'
+    image: postgres:17
     environment:
-      - 'POSTGRES_DB=mydatabase'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_USER=myuser
     ports:
-      - '5432'
+      - 5432:5432
+    networks:
+      - app-network
+  app:
+    image: app_image
+    build: .
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/mydatabase
+      DB_PASSWORD: secret
+      DB_USERNAME: myuser
+    depends_on:
+      - postgres
+    ports:
+      - 8080:8080
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
